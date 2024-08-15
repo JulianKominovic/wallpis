@@ -29,7 +29,7 @@ async function compress(files = []) {
 
     sharpInstance
       .resize(width, height)
-      .avif({ quality: 60 })
+      .avif({ quality: 80 })
       .toFile(file.replace(".png", ".avif"));
     await fs.rm(file, { force: true }).catch(console.error);
   }

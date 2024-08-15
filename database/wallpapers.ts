@@ -8,7 +8,7 @@ type WallpaperStats = {
 function addDownload(wallpaperId: WallpaperStats["id"]): Promise<Error | true> {
   return new Promise((resolve, reject) =>
     db.run(
-      "INSERT INTO wallpapers (id, downloads) VALUES (?, 0) ON DUPLICATE KEY UPDATE wallpapers SET downloads = downloads+1 WHERE id=?",
+      "INSERT OR REPLACE INTO wallpapers (id, downloads) VALUES (?, COALESCE((SELECT downloads FROM wallpapers WHERE id = ?), 0) + 1)",
       [wallpaperId, wallpaperId],
       (err) => {
         if (err) {
@@ -21,6 +21,18 @@ function addDownload(wallpaperId: WallpaperStats["id"]): Promise<Error | true> {
   );
 }
 
-const wallpapersStats = { addDownload };
+function getAllWallpapers(): Promise<WallpaperStats[]> {
+  return new Promise((resolve, reject) =>
+    db.all<WallpaperStats>("SELECT * FROM wallpapers", (err, rows) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(rows);
+      }
+    })
+  );
+}
+
+const wallpapersStats = { addDownload, getAllWallpapers };
 
 export default wallpapersStats;

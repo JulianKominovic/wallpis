@@ -17,7 +17,7 @@ type WallpaperFolder = {
 };
 export async function initWallpapers() {
   if (WALLPAPERS_INDEX) return;
-  const categories = await fs.readdir("./public/wallpapers");
+  const categories = await fs.readdir("./public/sd-wallpapers");
   WALLPAPERS_INDEX = {
     anime: {
       "dark-skies": [],
@@ -33,16 +33,16 @@ export async function initWallpapers() {
   };
   await Promise.all(
     categories.map(async (category) => {
-      const files = await fs.readdir(`./public/wallpapers/${category}`);
+      const files = await fs.readdir(`./public/sd-wallpapers/${category}`);
       return await Promise.all(
         files.map(async (subcategory) => {
           const files = await fs.readdir(
-            `./public/wallpapers/${category}/${subcategory}`
+            `./public/sd-wallpapers/${category}/${subcategory}`
           );
           files.forEach((f) => {
             // @ts-ignore
             WALLPAPERS_INDEX[category][subcategory].push(
-              `/wallpapers/${category}/${subcategory}/${f}`
+              `/sd-wallpapers/${category}/${subcategory}/${f}`
             );
             WALLPAPERS_COUNT++;
           });

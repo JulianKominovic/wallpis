@@ -1,3 +1,5 @@
+import EventsToaster from "@/components/EventsToaster";
+import { Toaster } from "@/components/ui/sonner";
 import Gallery from "@/fragments/Gallery";
 import Hero from "@/fragments/Hero";
 import { WALLPAPERS_INDEX } from "@/initial";
@@ -72,6 +74,7 @@ export default function Home() {
         className="text-white"
         sectionBackgroundImageClassName="-top-64 left-32"
       />
+      <EventsToaster />
     </>
   );
 }

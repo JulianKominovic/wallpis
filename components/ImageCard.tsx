@@ -17,7 +17,14 @@ type Props = {
 const ImageCard = forwardRef(
   ({ src, loading = "lazy", priority, className, style }: Props, ref) => {
     return (
-      <a href={src} target="_blank" className="cursor-pointer" download>
+      <a
+        href={src
+          .replace("sd-wallpapers", "wallpapers")
+          .replace(".avif", ".png")}
+        target="_blank"
+        className="cursor-pointer"
+        download
+      >
         <Card
           className={cn("overflow-hidden group relative", className)}
           style={style}
@@ -27,6 +34,7 @@ const ImageCard = forwardRef(
             <DownloadIcon /> Download 4K PNG
           </div>
           <Image
+            unoptimized
             loading={loading}
             priority={priority}
             src={src}

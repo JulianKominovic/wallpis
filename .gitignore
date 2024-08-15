@@ -18,6 +18,7 @@
 
 # wallpapers folder
 /public/wallpapers
+/public/wallpapers-backup
 
 # misc
 .DS_Store

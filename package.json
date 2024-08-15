@@ -17,6 +17,7 @@
     "react": "^18",
     "react-dom": "^18",
     "react-plock": "^3.2.0",
+    "sharp": "^0.33.4",
     "sqlite3": "^5.1.7",
     "tailwind-gradient-mask-image": "^1.2.0",
     "tailwind-merge": "^2.5.2",

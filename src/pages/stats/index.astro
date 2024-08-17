@@ -1,0 +1,18 @@
+---
+import wallpapersStats from "../../database/wallpapers";
+
+const stats = wallpapersStats.getAllWallpapers();
+---
+
+<h1>Stats</h1>
+
+<ul>
+  {
+    stats.map((stat) => (
+      <li>
+        <h2>{stat.id}</h2>
+        <p>{stat.downloads}</p>
+      </li>
+    ))
+  }
+</ul>

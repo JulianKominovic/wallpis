@@ -1,0 +1,15 @@
+.toastify {
+  border-radius: 12px;
+  width: 40ch;
+  max-width: calc(100% - 64px);
+  background-color: whitesmoke;
+  background-image: none;
+  padding: 16px;
+  border: 1px solid #0000001a;
+  color: #242424;
+  box-shadow: 0 4px 12px #0000001a;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}

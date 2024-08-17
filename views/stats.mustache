@@ -1,0 +1,26 @@
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/css/styles.css" />
+    <title>Wallpis - Stats</title>
+  </head>
+  <body class="p-8">
+    <table>
+      <thead>
+        <tr>
+          <th class="pr-4 text-left">Image</th>
+          <th class="pr-4 text-left">Downloads</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#Wallpapers}}
+          <tr>
+            <td class="pr-4 text-left">{{ID}}</td>
+            <td class="pr-4 text-left">{{Downloads}}</td>
+          </tr>
+        {{/Wallpapers}}
+      </tbody>
+    </table>
+  </body>
+</html>

@@ -41,4 +41,5 @@ next-env.d.ts
 public/temp
 db
 public/original-wallpapers
-wallpapers.sqlite
+*.sqlite
+geolite2

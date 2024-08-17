@@ -1,0 +1,111 @@
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{{Title}}</title>
+    <link rel="stylesheet" href="/css/styles.css" />
+  </head>
+  <body
+    class="min-h-screen bg-[var(--background)] font-sans antialiased font-medium transition-colors ease-in-out duration-500 text-white"
+    style="--background: #000000"
+  >
+    <header
+      class="flex flex-col max-w-[80ch] text-wrap mx-auto text-center pt-20 px-2 pb-16"
+    >
+      <h1
+        class="font-bold text-5xl sm:text-7xl bg-gradient-to-br from-neutral-400 via-white to-neutral-400 text-transparent bg-clip-text !leading-snug"
+      >
+        AI generated wallpapers
+      </h1>
+      <p class="text-neutral-400 text-xl">
+        Enjoy the beauty of curated AI generated wallpapers in 4K resolution.
+      </p>
+      {{! <Badge variant="secondary" class="w-fit inline mx-auto mt-4">
+        1 available
+      </Badge> }}
+      <span class="text-muted-foreground mt-2 whitespace-normal">
+        Special thanks to
+        <a
+          href="https://upscayl.org/"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="underline underline-offset-2"
+        >
+          Upscayl
+        </a>
+        and
+        <a
+          href="https://github.com/lllyasviel/Fooocus"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="underline underline-offset-2"
+        >
+          Fooocus
+        </a>
+        for making this possible.
+      </span>
+    </header>
+    {{#Wallpapers}}
+      <section>
+        <h2 class="text-4xl font-bold text-center mt-4 mb-8">{{Name}}</h2>
+        {{#Subcategories}}
+          <h3
+            class="text-xl opacity-60 font-medium text-center mb-8"
+          >{{Name}}</h3>
+          <ul
+            class="list-none max-w-screen-lg mx-auto sm:px-8 px-4 flex flex-wrap justify-center gap-3 mb-20 relative"
+            data-section-color="{{Meta.Color}}"
+          >
+            <li>
+              <img
+                src="{{BackgroundCoverImage}}"
+                alt=""
+                class="gradient-mask-t-50-d w-full h-auto absolute top-0 left-0 opacity-30"
+              />
+            </li>
+            {{#Wallpapers}}
+              <li
+                class="rounded-lg list-none max-w-sm w-full h-auto overflow-hidden group relative"
+              >
+                <a
+                  href="{{Path}}"
+                  target="_blank"
+                  class="cursor-pointer"
+                  download
+                >
+                  <div
+                    class="group-hover:opacity-100 opacity-0 transition-opacity bg-black/70 backdrop-blur-sm h-full w-full absolute bottom-0 left-0 text-white flex justify-center items-center text-sm gap-2"
+                  >
+                    <svg
+                      width="15"
+                      height="15"
+                      viewBox="0 0 15 15"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    ><path
+                        d="M7.50005 1.04999C7.74858 1.04999 7.95005 1.25146 7.95005 1.49999V8.41359L10.1819 6.18179C10.3576 6.00605 10.6425 6.00605 10.8182 6.18179C10.994 6.35753 10.994 6.64245 10.8182 6.81819L7.81825 9.81819C7.64251 9.99392 7.35759 9.99392 7.18185 9.81819L4.18185 6.81819C4.00611 6.64245 4.00611 6.35753 4.18185 6.18179C4.35759 6.00605 4.64251 6.00605 4.81825 6.18179L7.05005 8.41359V1.49999C7.05005 1.25146 7.25152 1.04999 7.50005 1.04999ZM2.5 10C2.77614 10 3 10.2239 3 10.5V12C3 12.5539 3.44565 13 3.99635 13H11.0012C11.5529 13 12 12.5528 12 12V10.5C12 10.2239 12.2239 10 12.5 10C12.7761 10 13 10.2239 13 10.5V12C13 13.1041 12.1062 14 11.0012 14H3.99635C2.89019 14 2 13.103 2 12V10.5C2 10.2239 2.22386 10 2.5 10Z"
+                        fill="currentColor"
+                        fill-rule="evenodd"
+                        clip-rule="evenodd"
+                      ></path></svg>
+                    Download 4K PNG
+                  </div>
+                  <img
+                    class="h-auto w-full object-cover"
+                    width="600"
+                    height="300"
+                    decoding="async"
+                    loading="lazy"
+                    src="{{SDPath}}"
+                    alt="{{Name}}"
+                  />
+                </a>
+              </li>
+            {{/Wallpapers}}
+          </ul>
+        {{/Subcategories}}
+      </section>
+    {{/Wallpapers}}
+    <script type="module" src="/js/index.js"></script>
+  </body>
+</html>

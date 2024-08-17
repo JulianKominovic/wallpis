@@ -19,6 +19,9 @@
 # wallpapers folder
 /public/wallpapers
 /public/wallpapers-backup
+public/temp
+public/original-wallpapers
+public/compressed
 
 # misc
 .DS_Store
@@ -38,8 +41,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
-public/temp
 db
-public/original-wallpapers
 *.sqlite
 geolite2
+main

@@ -3,7 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "tailwindcss -i ./globals.css -o ./public/css/styles.css --watch"
+    "dev": "tailwindcss -i ./globals.css -o ./public/css/styles.css --watch",
+    "build": "tailwindcss -i ./globals.css -o ./public/css/styles.css --minify && go build main.go"
   },
   "dependencies": {
     "class-variance-authority": "^0.7.0",

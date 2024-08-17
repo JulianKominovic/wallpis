@@ -16,38 +16,29 @@ async function walk(dir) {
   return files.reduce((all, folderContents) => all.concat(folderContents), []);
 }
 
-const cores = os.cpus().length / 2;
-const percentage = 25;
+const cores = os.cpus().length;
 
 async function compress(files = []) {
   for (const file of files) {
-    console.log("Compressing ", file, "to", file.replace(".png", ".avif"));
+    console.log("Compressing ", file, " lossless");
     const sharpInstance = sharp(file);
-    const info = await sharpInstance.metadata();
-    const width = Math.round((info.width * percentage) / 100);
-    const height = Math.round((info.height * percentage) / 100);
-
+    console.log("file");
+    await fs.mkdir(path.dirname(file.replace("/wallpapers/", "/compressed/")), {
+      recursive: true,
+    });
     await sharpInstance
-      .resize(width, height)
-      .avif({ quality: 80 })
-      .toFile(file.replace(".png", ".avif"));
-    await fs.rm(file, { force: true }).catch(console.error);
+      .png({ quality: 100, progressive: true, compressionLevel: 9 })
+      .toFile(file.replace("/wallpapers/", "/compressed/"));
   }
 }
 
 async function go() {
-  await fs.rm("public/sd-wallpapers", { recursive: true, force: true });
-  await fs.cp("public/wallpapers", "public/sd-wallpapers", {
-    recursive: true,
-    force: true,
-  });
-  const files = (await walk("public/sd-wallpapers")).filter((f) =>
+  const files = (await walk("public/wallpapers")).filter((f) =>
     f.endsWith(".png")
   );
   const chunksLen = Math.ceil(files.length / cores);
   const chunks = [];
   console.log("Files", files.length);
-
   for (let i = 0; i < files.length; i += chunksLen) {
     console.log("Chunk", i, "to", i + chunksLen);
     chunks.push(files.slice(i, i + chunksLen));

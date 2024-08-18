@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "tailwindcss -i ./globals.css -o ./public/css/styles.css --watch",
-    "build": "tailwindcss -i ./globals.css -o ./public/css/styles.css --minify && go build main.go"
+    "build": "tailwindcss -i ./globals.css -o ./public/css/styles.css --minify && CC='x86_64-unknown-linux-gnu-gcc' CGO_ENABLED='1' GOARCH='amd64' GOOS='linux' go build main.go"
   },
   "dependencies": {
     "class-variance-authority": "^0.7.0",

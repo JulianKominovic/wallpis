@@ -15,6 +15,7 @@
 
 # production
 /build
+copy-files.sh
 
 # wallpapers folder
 /public/wallpapers

@@ -124,6 +124,11 @@ func main() {
 	}))
 
 	app.Use("/wallpapers/*", func(c fiber.Ctx) error {
+		// Prevent multiple hits on the same wallpaper to download by parts
+		c.Response().Header.Set("Accept-Ranges", "none")
+		for k, v := range c.GetReqHeaders() {
+			fmt.Printf("%s: %s\n", k, v)
+		}
 		eventManager.Emit("wallpaper_download", c.Path(), c.IP())
 		wallpapers_dao.AddDownload(c.Path())
 		return c.Next()

@@ -21,7 +21,6 @@ if (isSseSupported) {
         duration: 3000,
         gravity: "bottom", // `top` or `bottom`
         position: "right", // `left`, `center` or `right`
-        duration: -1,
         offset: {
           x: 16, // horizontal axis - can be a number or a string indicating unity. eg: '2em'
           y: 16, // vertical axis - can be a number or a string indicating unity. eg: '2em'

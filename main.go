@@ -109,7 +109,8 @@ func main() {
 	engine.Reload(true)
 	// Initialize a new Fiber app
 	app := fiber.New(fiber.Config{
-		Views: engine,
+		Views:       engine,
+		ProxyHeader: "X-Real-Ip",
 	})
 
 	app.Use(limiter.New(limiter.Config{
@@ -170,6 +171,7 @@ func main() {
 		ctx.Response.Header.Set("Access-Control-Allow-Origin", "*")
 		ctx.Response.Header.Set("Access-Control-Allow-Headers", "Cache-Control")
 		ctx.Response.Header.Set("Access-Control-Allow-Credentials", "true")
+		ctx.Response.Header.Set("X-Accel-Buffering", "no")
 		ctx.SetBodyStreamWriter(fasthttp.StreamWriter(func(w *bufio.Writer) {
 
 			callbackFn := func(args ...interface{}) {

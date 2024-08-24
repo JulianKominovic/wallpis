@@ -126,9 +126,6 @@ func main() {
 	app.Use("/wallpapers/*", func(c fiber.Ctx) error {
 		// Prevent multiple hits on the same wallpaper to download by parts
 		c.Response().Header.Set("Accept-Ranges", "none")
-		for k, v := range c.GetReqHeaders() {
-			fmt.Printf("%s: %s\n", k, v)
-		}
 		eventManager.Emit("wallpaper_download", c.Path(), c.IP())
 		wallpapers_dao.AddDownload(c.Path())
 		return c.Next()
@@ -150,11 +147,7 @@ func main() {
 	app.Get("/", func(c fiber.Ctx) error {
 		// Send a string response to the client
 		return c.Render("home", fiber.Map{
-			"Title":      "Wallpis - Home",
 			"Wallpapers": wallpapers,
-			"toTitleCase": func(s string) string {
-				return cases.Title(language.Tag{}).String(s)
-			},
 		})
 	})
 	app.Get("/stats", func(c fiber.Ctx) error {
@@ -190,7 +183,7 @@ func main() {
 				countryCode := country.Country.IsoCode
 				flagEmoji := utils.Country2flag(countryCode)
 				var eventStruct = WallpaperDownloadEvent{
-					Country:   country.Country.IsoCode,
+					Country:   country.Country.Names["en"],
 					City:      city.City.Names["en"],
 					Url:       args[0].(string),
 					FlagEmoji: flagEmoji,

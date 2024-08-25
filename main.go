@@ -103,6 +103,9 @@ var eventManager = events.New()
 
 func statsMiddleware() fiber.Handler {
 	return func(c fiber.Ctx) error {
+		if c.Path() == "/api/sse" {
+			return c.Next()
+		}
 		// Start timer
 		start := time.Now()
 

@@ -30,6 +30,10 @@ func createTables(dbInstance *sql.DB) {
 	if err != nil {
 		panic(err)
 	}
+	_, err = dbInstance.Exec(`CREATE TABLE IF NOT EXISTS stats (Id INTEGER PRIMARY KEY AUTOINCREMENT, Datetime DATETIME DEFAULT CURRENT_TIMESTAMP , Method TEXT, Url TEXT, Headers TEXT, Country TEXT, City TEXT, UserAgent TEXT, Referer TEXT, ResponseCode INTEGER, ResponseSize INTEGER, ResponseTime INTEGER)`)
+	if err != nil {
+		panic(err)
+	}
 }
 
 func GetConnection() *sql.DB {

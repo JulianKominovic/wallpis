@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/JulianKominovic/wallpis/database"
+	httpstats_dao "github.com/JulianKominovic/wallpis/database/http-stats"
 	wallpapers_dao "github.com/JulianKominovic/wallpis/database/wallpapers"
 	"github.com/JulianKominovic/wallpis/utils"
 	"github.com/gofiber/fiber/v3"
@@ -100,8 +101,51 @@ func LoadWallpapers() []WallpaperCategory {
 
 var eventManager = events.New()
 
-func main() {
+func statsMiddleware() fiber.Handler {
+	return func(c fiber.Ctx) error {
+		// Start timer
+		start := time.Now()
 
+		// Next routes
+		err := c.Next()
+
+		// Stop timer
+		duration := time.Since(start)
+
+		parsedIp := net.ParseIP(c.IP())
+		country, _ := database.GetGeoIP().Country(
+			parsedIp,
+		)
+		city, _ := database.GetGeoIP().City(
+			parsedIp,
+		)
+		internalError := httpstats_dao.RegisterHttpTraffic(httpstats_dao.HttpRequest{
+			Datetime:     time.Now().String(),
+			Method:       c.Method(),
+			Url:          c.Path(),
+			Headers:      c.Request().Header.String(),
+			Country:      string(country.Country.Names["en"]),
+			City:         string(city.City.Names["en"]),
+			UserAgent:    c.Get("User-Agent"),
+			Referer:      c.Get("Referer"),
+			ResponseCode: c.Response().StatusCode(),
+			ResponseSize: len(c.Response().Body()),
+			ResponseTime: int(duration.Milliseconds()),
+		})
+		if internalError != nil {
+			println(internalError.Error())
+		}
+
+		// Return the error if there was one
+		return err
+	}
+}
+
+func main() {
+	statsRoute := os.Getenv("STATS_ROUTE")
+	if statsRoute == "" {
+		panic("STATS_ROUTE env variable is required")
+	}
 	wallpapers := LoadWallpapers()
 	engine := mustache.New("./views", ".mustache")
 	// Only reload templates when not in production
@@ -112,6 +156,7 @@ func main() {
 		Views:       engine,
 		ProxyHeader: "X-Real-Ip",
 	})
+	app.Use(statsMiddleware())
 
 	app.Use(limiter.New(limiter.Config{
 		LimitReached: func(c fiber.Ctx) error {
@@ -150,18 +195,24 @@ func main() {
 			"Wallpapers": wallpapers,
 		})
 	})
-	app.Get("/stats", func(c fiber.Ctx) error {
+	app.Get(statsRoute, func(c fiber.Ctx) error {
+		var err error
+		httpStatsByGroup, err := httpstats_dao.GetStatsGroupBy(c.Query("groupby"))
+		if err != nil {
+			return c.Status(500).SendString(err.Error())
+		}
 		wallpaperStats, err := wallpapers_dao.GetAll()
 		if err != nil {
 			return c.Status(500).SendString("Error fetching wallpaper stats")
 		}
 		return c.Render("stats", fiber.Map{
-			"Wallpapers": wallpaperStats,
+			"Wallpapers":       wallpaperStats,
+			"HttpStatsByGroup": httpStatsByGroup,
+			"GroupBy":          c.Query("groupby"),
 		})
 	})
 	app.Get("/api/sse", func(c fiber.Ctx) error {
 		ctx := c.Context()
-
 		ctx.SetContentType("text/event-stream")
 		ctx.Response.Header.Set("Cache-Control", "no-cache")
 		ctx.Response.Header.Set("Connection", "keep-alive")
@@ -171,7 +222,6 @@ func main() {
 		ctx.Response.Header.Set("Access-Control-Allow-Credentials", "true")
 		ctx.Response.Header.Set("X-Accel-Buffering", "no")
 		ctx.SetBodyStreamWriter(fasthttp.StreamWriter(func(w *bufio.Writer) {
-
 			callbackFn := func(args ...interface{}) {
 				parsedIp := net.ParseIP(args[1].(string))
 				country, _ := database.GetGeoIP().Country(

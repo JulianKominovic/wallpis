@@ -6,7 +6,44 @@
     <title>Wallpis - Stats</title>
   </head>
   <body class="p-8">
-    <table>
+    <header class="flex flex-wrap gap-4">
+      <h2>Group by</h2>
+      <a class="underline-offset-2 underline" href="?groupby=Method">Method</a>
+      <a class="underline-offset-2 underline" href="?groupby=Url">Url</a>
+      <a class="underline-offset-2 underline" href="?groupby=ResponseCode"
+        >ResponseCode</a
+      >
+      <a class="underline-offset-2 underline" href="?groupby=Country"
+        >Country</a
+      >
+      <a class="underline-offset-2 underline" href="?groupby=City">City</a>
+      <a class="underline-offset-2 underline" href="?groupby=UserAgent"
+        >UserAgent</a
+      >
+      <a class="underline-offset-2 underline" href="?groupby=Referer"
+        >Referer</a
+      >
+      <a class="underline-offset-2 underline" href="?groupby=ResponseSize"
+        >ResponseSize</a
+      >
+    </header>
+    <table class="mt-8">
+      <thead>
+        <tr>
+          <th class="pr-4 text-left">Key</th>
+          <th class="pr-4 text-left">Count</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#HttpStatsByGroup}}
+        <tr>
+          <td class="pr-4 text-left">{{ GroupBy }}</td>
+          <td class="pr-4 text-left">{{ Count }}</td>
+        </tr>
+        {{/HttpStatsByGroup}}
+      </tbody>
+    </table>
+    <table class="mt-8">
       <thead>
         <tr>
           <th class="pr-4 text-left">Image</th>
@@ -15,12 +52,47 @@
       </thead>
       <tbody>
         {{#Wallpapers}}
-          <tr>
-            <td class="pr-4 text-left">{{ID}}</td>
-            <td class="pr-4 text-left">{{Downloads}}</td>
-          </tr>
+        <tr>
+          <td class="pr-4 text-left">{{ ID }}</td>
+          <td class="pr-4 text-left">{{ Downloads }}</td>
+        </tr>
         {{/Wallpapers}}
       </tbody>
     </table>
+    <!-- 
+    <table class="mt-8">
+      <thead>
+        <tr>
+          <th class="pr-4 text-left">Method</th>
+          <th class="pr-4 text-left">Url</th>
+          <th class="pr-4 text-left">Status</th>
+          <th class="pr-4 text-left">Duration</th>
+          <th class="pr-4 text-left">Country</th>
+          <th class="pr-4 text-left">City</th>
+          <th class="pr-4 text-left">UserAgent</th>
+          <th class="pr-4 text-left">Referer</th>
+          <th class="pr-4 text-left">Size</th>
+          <th class="pr-4 text-left">Headers</th>
+
+        </tr>
+      </thead>
+      <tbody>
+        {{#HttpStats}}
+          <tr>
+            <td class="pr-4 text-left">{{Method}}</td>
+            <td class="pr-4 text-left">{{Url}}</td>
+            <td class="pr-4 text-left">{{ResponseCode}}</td>
+            <td class="pr-4 text-left">{{ResponseTime}}</td>
+            <td class="pr-4 text-left">{{Country}}</td>
+            <td class="pr-4 text-left">{{City}}</td>
+            <td class="pr-4 text-left">{{UserAgent}}</td>
+            <td class="pr-4 text-left">{{Referer}}</td>
+            <td class="pr-4 text-left">{{ResponseSize}}</td>
+            <td class="pr-4 text-left">{{Headers}}</td>
+          </tr>
+        {{/HttpStats}}
+      </tbody>
+    </table> 
+   -->
   </body>
 </html>

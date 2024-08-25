@@ -14,6 +14,7 @@ import (
 	"github.com/JulianKominovic/wallpis/database"
 	httpstats_dao "github.com/JulianKominovic/wallpis/database/http-stats"
 	wallpapers_dao "github.com/JulianKominovic/wallpis/database/wallpapers"
+	telegram_integration "github.com/JulianKominovic/wallpis/integrations"
 	"github.com/JulianKominovic/wallpis/utils"
 	"github.com/gofiber/fiber/v3"
 	"github.com/gofiber/fiber/v3/middleware/cache"
@@ -145,10 +146,20 @@ func statsMiddleware() fiber.Handler {
 }
 
 func main() {
-	statsRoute := os.Getenv("STATS_ROUTE")
+	var statsRoute = os.Getenv("STATS_ROUTE")
+	var telegramBotToken = os.Getenv("TELEGRAM_BOT_TOKEN")
+	var telegramChatId = os.Getenv("TELEGRAM_CHAT_ID")
+
 	if statsRoute == "" {
 		panic("STATS_ROUTE env variable is required")
 	}
+	if telegramBotToken == "" {
+		panic("TELEGRAM_BOT_TOKEN env variable is required")
+	}
+	if telegramChatId == "" {
+		panic("TELEGRAM_CHAT_ID env variable is required")
+	}
+
 	wallpapers := LoadWallpapers()
 	engine := mustache.New("./views", ".mustache")
 	// Only reload templates when not in production
@@ -174,7 +185,30 @@ func main() {
 	app.Use("/wallpapers/*", func(c fiber.Ctx) error {
 		// Prevent multiple hits on the same wallpaper to download by parts
 		c.Response().Header.Set("Accept-Ranges", "none")
-		eventManager.Emit("wallpaper_download", c.Path(), c.IP())
+		parsedIp := net.ParseIP(c.IP())
+		country, _ := database.GetGeoIP().Country(
+			parsedIp,
+		)
+		city, _ := database.GetGeoIP().City(
+			parsedIp,
+		)
+		countryCode := country.Country.IsoCode
+		flagEmoji := utils.Country2flag(countryCode)
+		var eventStruct = WallpaperDownloadEvent{
+			Country:   country.Country.Names["en"],
+			City:      city.City.Names["en"],
+			Url:       c.Path(),
+			FlagEmoji: flagEmoji,
+		}
+		eventManager.Emit("wallpaper_download", eventStruct)
+		telegram_integration.NotifyWallpaperDownload(
+			telegramBotToken,
+			telegramChatId,
+			eventStruct.Country,
+			eventStruct.City,
+			eventStruct.FlagEmoji,
+			eventStruct.Url,
+		)
 		wallpapers_dao.AddDownload(c.Path())
 		return c.Next()
 	})
@@ -226,21 +260,7 @@ func main() {
 		ctx.Response.Header.Set("X-Accel-Buffering", "no")
 		ctx.SetBodyStreamWriter(fasthttp.StreamWriter(func(w *bufio.Writer) {
 			callbackFn := func(args ...interface{}) {
-				parsedIp := net.ParseIP(args[1].(string))
-				country, _ := database.GetGeoIP().Country(
-					parsedIp,
-				)
-				city, _ := database.GetGeoIP().City(
-					parsedIp,
-				)
-				countryCode := country.Country.IsoCode
-				flagEmoji := utils.Country2flag(countryCode)
-				var eventStruct = WallpaperDownloadEvent{
-					Country:   country.Country.Names["en"],
-					City:      city.City.Names["en"],
-					Url:       args[0].(string),
-					FlagEmoji: flagEmoji,
-				}
+				eventStruct := args[0].(WallpaperDownloadEvent)
 				json, _ := json.Marshal(eventStruct)
 
 				fmt.Fprintf(w, "data: %s\n\n", json)

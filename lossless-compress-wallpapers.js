@@ -1,40 +1,44 @@
 const sharp = require("sharp");
 const fs = require("fs/promises");
-const path = require("path");
+const fsSync = require("fs");
 const os = require("os");
-async function walk(dir) {
-  let files = await fs.readdir(dir);
-  files = await Promise.all(
-    files.map(async (file) => {
-      const filePath = path.join(dir, file);
-      const stats = await fs.stat(filePath);
-      if (stats.isDirectory()) return walk(filePath);
-      else if (stats.isFile()) return filePath;
-    })
-  );
-
-  return files.reduce((all, folderContents) => all.concat(folderContents), []);
-}
+const assert = require("assert");
+const path = require("path");
 
 const cores = os.cpus().length;
+
+const sourceFolder = "labs/wallpapers-to-be-compressed";
+const destinationFolder = "labs/compressed-wallpapers";
+
+if (!fsSync.existsSync(sourceFolder))
+  fsSync.mkdirSync(sourceFolder, { recursive: true });
+if (!fsSync.existsSync(destinationFolder))
+  fsSync.mkdirSync(destinationFolder, { recursive: true });
 
 async function compress(files = []) {
   for (const file of files) {
     console.log("Compressing ", file, " lossless");
-    const sharpInstance = sharp(file);
-    console.log("file");
-    await fs.mkdir(path.dirname(file.replace("/wallpapers/", "/compressed/")), {
-      recursive: true,
-    });
+    const sharpInstance = sharp(path.join(sourceFolder, file));
     await sharpInstance
-      .png({ quality: 100, progressive: true, compressionLevel: 9 })
-      .toFile(file.replace("/wallpapers/", "/compressed/"));
+      .png({
+        effort: 10,
+        quality: 100,
+        palette: true,
+        progressive: true,
+        compressionLevel: 9,
+      })
+      .toFile(path.join(destinationFolder, file));
   }
 }
 
 async function go() {
-  const files = (await walk("public/wallpapers")).filter((f) =>
+  const files = (await fs.readdir(sourceFolder)).filter((f) =>
     f.endsWith(".png")
+  );
+  assert(
+    files.length > 0,
+    "No files found to compress, please add some .png files to the source folder: " +
+      sourceFolder
   );
   const chunksLen = Math.ceil(files.length / cores);
   const chunks = [];

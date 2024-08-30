@@ -26,11 +26,11 @@ func GetGeoIP() *geoip2.Reader {
 }
 
 func createTables(dbInstance *sql.DB) {
-	_, err := dbInstance.Exec(`CREATE TABLE IF NOT EXISTS wallpapers (id TEXT PRIMARY KEY, downloads INTEGER)`)
+	_, err := dbInstance.Exec(`CREATE TABLE IF NOT EXISTS wallpapers (id TEXT PRIMARY KEY, downloads INTEGER, Ip TEXT)`)
 	if err != nil {
 		panic(err)
 	}
-	_, err = dbInstance.Exec(`CREATE TABLE IF NOT EXISTS stats (Id INTEGER PRIMARY KEY AUTOINCREMENT, Datetime DATETIME DEFAULT CURRENT_TIMESTAMP , Method TEXT, Url TEXT, Headers TEXT, Country TEXT, City TEXT, UserAgent TEXT, Referer TEXT, ResponseCode INTEGER, ResponseSize INTEGER, ResponseTime INTEGER)`)
+	_, err = dbInstance.Exec(`CREATE TABLE IF NOT EXISTS stats (Id INTEGER PRIMARY KEY AUTOINCREMENT, Datetime DATETIME DEFAULT CURRENT_TIMESTAMP , Method TEXT, Url TEXT, Headers TEXT, Country TEXT, City TEXT, UserAgent TEXT, Referer TEXT, ResponseCode INTEGER, ResponseSize INTEGER, ResponseTime INTEGER, Ip TEXT)`)
 	if err != nil {
 		panic(err)
 	}

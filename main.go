@@ -17,7 +17,6 @@ import (
 	telegram_integration "github.com/JulianKominovic/wallpis/integrations"
 	"github.com/JulianKominovic/wallpis/utils"
 	"github.com/gofiber/fiber/v3"
-	"github.com/gofiber/fiber/v3/middleware/cache"
 	"github.com/gofiber/fiber/v3/middleware/etag"
 	"github.com/gofiber/fiber/v3/middleware/helmet"
 	"github.com/gofiber/fiber/v3/middleware/limiter"
@@ -135,6 +134,7 @@ func statsMiddleware() fiber.Handler {
 			ResponseCode: c.Response().StatusCode(),
 			ResponseSize: len(c.Response().Body()),
 			ResponseTime: int(duration.Milliseconds()),
+			Ip:           c.IP(),
 		})
 		if internalError != nil {
 			println(internalError.Error())
@@ -209,17 +209,12 @@ func main() {
 			eventStruct.FlagEmoji,
 			eventStruct.Url,
 		)
-		wallpapers_dao.AddDownload(c.Path())
+		wallpapers_dao.AddDownload(c.Path(), c.IP())
 		return c.Next()
 	})
 
 	app.Use(helmet.New())
 	app.Use(etag.New(etag.Config{
-		Next: func(c fiber.Ctx) bool {
-			return strings.Contains(c.Path(), "/api/")
-		},
-	}))
-	app.Use(cache.New(cache.Config{
 		Next: func(c fiber.Ctx) bool {
 			return strings.Contains(c.Path(), "/api/")
 		},
@@ -233,19 +228,30 @@ func main() {
 		})
 	})
 	app.Get(statsRoute, func(c fiber.Ctx) error {
-		var err error
-		httpStatsByGroup, err := httpstats_dao.GetStatsGroupBy(c.Query("groupby"))
-		if err != nil {
-			return c.Status(500).SendString(err.Error())
-		}
 		wallpaperStats, err := wallpapers_dao.GetAll()
 		if err != nil {
 			return c.Status(500).SendString("Error fetching wallpaper stats")
 		}
+		groupBy := c.Query("groupby")
+		if groupBy != "" {
+			var err error
+			httpStatsByGroup, err := httpstats_dao.GetStatsGroupBy(groupBy)
+			if err != nil {
+				return c.Status(500).SendString(err.Error())
+			}
+			return c.Render("stats", fiber.Map{
+				"Wallpapers":       wallpaperStats,
+				"HttpStatsByGroup": httpStatsByGroup,
+				"GroupBy":          groupBy,
+			})
+		}
+		httpStats, err := httpstats_dao.GetAll()
+		if err != nil {
+			return c.Status(500).SendString("Error fetching http stats")
+		}
 		return c.Render("stats", fiber.Map{
-			"Wallpapers":       wallpaperStats,
-			"HttpStatsByGroup": httpStatsByGroup,
-			"GroupBy":          c.Query("groupby"),
+			"Wallpapers": wallpaperStats,
+			"HttpStats":  httpStats,
 		})
 	})
 	app.Get("/api/sse", func(c fiber.Ctx) error {

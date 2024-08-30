@@ -20,6 +20,7 @@ type HttpRequest struct {
 	ResponseCode int
 	ResponseSize int
 	ResponseTime int
+	Ip           string
 }
 
 type HttpRequestGroup struct {
@@ -28,7 +29,7 @@ type HttpRequestGroup struct {
 }
 
 func RegisterHttpTraffic(trafficRegister HttpRequest) error {
-	q := "INSERT INTO stats (Datetime, Method, Url, Headers, Country, City, UserAgent, Referer, ResponseCode, ResponseSize, ResponseTime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+	q := "INSERT INTO stats (Datetime, Method, Url, Headers, Country, City, UserAgent, Referer, ResponseCode, ResponseSize, ResponseTime, Ip) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
 	db := database.GetConnection()
 	stmt, err := db.Prepare(q)
 	if err != nil {
@@ -47,6 +48,7 @@ func RegisterHttpTraffic(trafficRegister HttpRequest) error {
 		trafficRegister.ResponseCode,
 		trafficRegister.ResponseSize,
 		trafficRegister.ResponseTime,
+		trafficRegister.Ip,
 	)
 	if err != nil {
 		return err
@@ -100,4 +102,24 @@ func GetStatsGroupBy(groupby string) ([]HttpRequestGroup, error) {
 	}
 	return stats, nil
 
+}
+
+func GetAll() ([]HttpRequest, error) {
+	q := "SELECT * FROM stats"
+	db := database.GetConnection()
+	rows, err := db.Query(q)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var stats []HttpRequest
+	for rows.Next() {
+		var stat HttpRequest
+		err = rows.Scan(&stat.Id, &stat.Datetime, &stat.Method, &stat.Url, &stat.Headers, &stat.Country, &stat.City, &stat.UserAgent, &stat.Referer, &stat.ResponseCode, &stat.ResponseSize, &stat.ResponseTime, &stat.Ip)
+		if err != nil {
+			return nil, err
+		}
+		stats = append(stats, stat)
+	}
+	return stats, nil
 }

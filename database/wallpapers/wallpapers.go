@@ -9,17 +9,18 @@ import (
 type WallpaperSchema struct {
 	ID        string
 	Downloads int
+	Ip        string
 }
 
-func AddDownload(wallpaperId string) error {
-	q := "INSERT OR REPLACE INTO wallpapers (ID, Downloads) VALUES (?, COALESCE((SELECT Downloads FROM wallpapers WHERE ID = ?), 0) + 1)"
+func AddDownload(wallpaperId string, ip string) error {
+	q := "INSERT OR REPLACE INTO wallpapers (ID, Downloads, Ip) VALUES (?, COALESCE((SELECT Downloads FROM wallpapers WHERE ID = ?), 0) + 1, ?)"
 	db := database.GetConnection()
 	stmt, err := db.Prepare(q)
 	if err != nil {
 		return err
 	}
 	defer stmt.Close()
-	r, err := stmt.Exec(wallpaperId, wallpaperId)
+	r, err := stmt.Exec(wallpaperId, wallpaperId, ip)
 	if err != nil {
 		return err
 	}
@@ -43,7 +44,7 @@ func GetAll() ([]WallpaperSchema, error) {
 	var wallpapers []WallpaperSchema
 	for rows.Next() {
 		var wallpaper WallpaperSchema
-		err = rows.Scan(&wallpaper.ID, &wallpaper.Downloads)
+		err = rows.Scan(&wallpaper.ID, &wallpaper.Downloads, &wallpaper.Ip)
 		if err != nil {
 			return nil, err
 		}

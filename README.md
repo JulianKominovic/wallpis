@@ -1,4 +1,6 @@
-# Wallpis
+
+<img width="1200" alt="Og (2)" src="https://github.com/user-attachments/assets/272c99f9-562d-4a89-90a3-6d0500bdbb95">
+
 
 ## Development
 
